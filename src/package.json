@@ -1,0 +1,79 @@
+{
+  "name": "magdee-pdf-to-audio",
+  "version": "1.0.0",
+  "description": "Magdee - PDF to Audio conversion app with React frontend and Python FastAPI backend",
+  "main": "App.tsx",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "backend": "python main.py",
+    "dev": "concurrently \"npm start\" \"python main.py\"",
+    "setup": "npm install && pip install -r requirements.txt",
+    "check-servers": "python check-servers.py",
+    "start-servers": "./start-magdee-servers.sh",
+    "check-env": "node check-environment.js",
+    "validate": "node validate-build.js",
+    "diagnostics": "python server-diagnostics.py",
+    "fix-issues": "python fix-server-issues.py",
+    "quick-check": "python quick-diagnostics.py",
+    "setup-env": "echo 'Setting up environment...' && cp .env.example .env && echo 'Created .env file from .env.example' && echo 'Please edit .env with your Supabase credentials' && echo 'See ENVIRONMENT_SETUP_GUIDE.md for instructions'"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "lucide-react": "^0.263.1",
+    "recharts": "^2.8.0",
+    "react-slick": "^0.29.0",
+    "react-responsive-masonry": "^2.1.7",
+    "react-dnd": "^16.0.1",
+    "motion": "^10.16.4",
+    "popper.js": "^1.16.1",
+    "react-hook-form": "7.55.0",
+    "sonner": "2.0.3",
+    "re-resizable": "^6.9.11",
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@types/node": "^20.5.0",
+    "typescript": "^5.1.6",
+    "concurrently": "^8.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "keywords": [
+    "pdf-to-audio",
+    "react",
+    "typescript",
+    "supabase",
+    "python",
+    "fastapi",
+    "audio-conversion",
+    "mobile-app",
+    "pwa"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/magdee-pdf-to-audio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/magdee-pdf-to-audio/issues"
+  },
+  "homepage": "https://github.com/yourusername/magdee-pdf-to-audio#readme"
+}
