@@ -40,7 +40,7 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/node": "^20.5.0",
-    "typescript": "^5.1.6",
+    "typescript": "^4.9.5",
     "concurrently": "^8.2.0"
   },
   "browserslist": {
@@ -66,14 +66,14 @@
     "mobile-app",
     "pwa"
   ],
-  "author": "Your Name",
+  "author": "Jolly11nth",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/magdee-pdf-to-audio.git"
+    "url": "https://github.com/Jolly11nth/magdee-pdf-to-audio.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/magdee-pdf-to-audio/issues"
+    "url": "https://github.com/Jolly11nth/magdee-pdf-to-audio/issues"
   },
-  "homepage": "https://github.com/yourusername/magdee-pdf-to-audio#readme"
+  "homepage": "https://github.com/Jolly11nth/magdee-pdf-to-audio#readme"
 }
