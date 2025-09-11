@@ -9,7 +9,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import magdeeLogo from "figma:asset/a4e7b1eba86d0b36e2f5b88f6b59e9b62b4ebb0e.png";
+import magdeeLogo from "../assets/Magdee logo.png";
 
 interface Book {
   id: string;
