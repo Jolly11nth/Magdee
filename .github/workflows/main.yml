@@ -25,8 +25,7 @@ jobs:
         working-directory: ./src
 
       - name: Build project
-        run: npm run build --prefix ./src
-        working-directory: ./src
+        run: npm run build 
 
   backend:
     name: Backend (Python)
