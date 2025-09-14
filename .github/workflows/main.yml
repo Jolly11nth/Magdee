@@ -23,6 +23,10 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./src
+        
+      - name: Install Vite globally
+        run: npm install -g vite
+        working-directory: ./src
 
       - name: Build project
         run: npm run build 
