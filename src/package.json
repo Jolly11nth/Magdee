@@ -19,6 +19,22 @@
     "quick-check": "python quick-diagnostics.py",
     "setup-env": "echo 'Setting up environment...' && cp .env.example .env && echo 'Created .env file from .env.example' && echo 'Please edit .env with your Supabase credentials' && echo 'See ENVIRONMENT_SETUP_GUIDE.md for instructions'"
   },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "backend": "python main.py",
+    "setup": "npm install && pip install -r requirements.txt",
+    "check-servers": "python check-servers.py",
+    "start-servers": "./start-magdee-servers.sh",
+    "check-env": "node check-environment.js",
+    "validate": "node validate-build.js",
+    "diagnostics": "python server-diagnostics.py",
+    "fix-issues": "python fix-server-issues.py",
+    "quick-check": "python quick-diagnostics.py",
+    "setup-env": "echo 'Setting up environment...' && cp .env.example .env && echo 'Created .env file from .env.example' && echo 'Please edit .env with your Supabase credentials' && echo 'See ENVIRONMENT_SETUP_GUIDE.md for instructions'"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
     "lucide-react": "^0.263.1",
