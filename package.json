@@ -1,10 +1,8 @@
 {
   "name": "magdee-pdf-to-audio",
   "version": "1.0.0",
-{
-  "type": "module"
-}
   "description": "Magdee - PDF to Audio conversion app with React frontend and Python FastAPI backend",
+  "type": "module"
   "main": "src/index.tsx",
   "scripts": {
     "dev": "vite",
