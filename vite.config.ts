@@ -55,7 +55,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  root: 'src',
+  root: '.',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
