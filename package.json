@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Magdee - PDF to Audio conversion app with React frontend and Python FastAPI backend",
   "main": "src/index.tsx",
-}
-{
-  "type": "module"
-}
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
