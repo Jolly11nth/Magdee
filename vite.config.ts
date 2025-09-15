@@ -55,9 +55,10 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  root: 'src',
   build: {
-    target: 'esnext',
-    outDir: 'build',
+    outDir: '../dist',
+    emptyOutDir: true,
   },
   server: {
     port: 3000,
