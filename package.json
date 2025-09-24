@@ -2,24 +2,22 @@
   "name": "magdee-pdf-to-audio",
   "version": "1.0.0",
   "description": "Magdee - PDF to Audio conversion app with React frontend and Python FastAPI backend",
-  "main": "src/index.tsx",
   "type": "module",
+  "main": "src/index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "vite --version"
-  
-    "start": "vite", 
+    "start": "vite",
     "backend": "python src/main.py",
-
     "setup": "npm install && pip install -r src/requirements.txt",
     "check-servers": "python src/check-servers.py",
     "check-env": "node src/check-environment.js",
     "validate": "node src/validate-build.js",
     "diagnostics": "python src/server-diagnostics.py",
     "fix-issues": "python src/fix-server-issues.py",
-    "quick-check": "python src/quick-diagnostics.py"
+    "quick-check": "python src/quick-diagnostics.py",
+    "postinstall": "vite --version"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
