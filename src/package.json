@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": " npx vite build",
     "preview": "vite preview",
+    "postinstall": "vite --version"
     "test": "vitest",
     "backend": "python main.py",
     "setup": "npm install && pip install -r requirements.txt",
