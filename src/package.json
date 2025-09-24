@@ -67,5 +67,8 @@
     "@vitejs/plugin-react": "^5.0.2",
     "@vitejs/plugin-react-swc": "^3.10.2",
     "vite": "^7.1.5"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
