@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "postinstall": "vite --version"
   
     "start": "vite", 
     "backend": "python src/main.py",
