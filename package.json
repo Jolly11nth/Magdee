@@ -16,8 +16,7 @@
     "validate": "node src/validate-build.js",
     "diagnostics": "python src/server-diagnostics.py",
     "fix-issues": "python src/fix-server-issues.py",
-    "quick-check": "python src/quick-diagnostics.py",
-    "postinstall": " "
+    "quick-check": "python src/quick-diagnostics.py"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
