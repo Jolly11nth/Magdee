@@ -72,6 +72,7 @@ export function WelcomeScreen({ onNavigate }) {
             border: "2px solid #4A90E2",
             borderRadius: "1rem",
             fontSize: "1rem",
+            textAlign: "center",
             fontWeight: "600",
             cursor: "pointer",
             fontFamily: "Poppins, sans-serif",
@@ -98,6 +99,7 @@ export function WelcomeScreen({ onNavigate }) {
             border: "none",
             borderRadius: "1rem",
             fontSize: "1rem",
+            textAlign: "center",
             fontWeight: "600",
             cursor: "pointer",
             fontFamily: "Poppins, sans-serif",
@@ -123,21 +125,23 @@ export function WelcomeScreen({ onNavigate }) {
       </p>
 
       {/* Debug Button */}
-      <div style={{
-        textAlign: 'center',
-        marginTop: '1rem'
-      }}>
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "1rem",
+        }}
+      >
         <button
-          onClick={() => onNavigate('auth-debug')}
+          onClick={() => onNavigate("auth-debug")}
           style={{
-            backgroundColor: 'transparent',
-            border: '1px solid #E5E7EB',
-            color: '#6B7280',
-            fontSize: '0.75rem',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontFamily: 'Poppins, sans-serif'
+            backgroundColor: "transparent",
+            border: "1px solid #E5E7EB",
+            color: "#6B7280",
+            fontSize: "0.75rem",
+            padding: "0.5rem 1rem",
+            borderRadius: "0.5rem",
+            cursor: "pointer",
+            fontFamily: "Poppins, sans-serif",
           }}
         >
           🔧 Debug Auth

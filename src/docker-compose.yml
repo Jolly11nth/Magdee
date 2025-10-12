@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Python FastAPI Backend
+  python-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: magdee-python-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-true}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN:-http://localhost:3000}
+      - PORT=8000
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+    volumes:
+      - ./app:/app/app
+      - magdee-uploads:/tmp/magdee/uploads
+      - magdee-outputs:/tmp/magdee/outputs
+    networks:
+      - magdee-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Frontend (optional - for local development)
+  frontend:
+    image: node:20-alpine
+    container_name: magdee-frontend
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_SUPABASE_URL=${REACT_APP_SUPABASE_URL}
+      - REACT_APP_SUPABASE_ANON_KEY=${REACT_APP_SUPABASE_ANON_KEY}
+      - VITE_PYTHON_BACKEND_URL=http://python-backend:8000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - magdee-network
+    depends_on:
+      - python-backend
+
+volumes:
+  magdee-uploads:
+    driver: local
+  magdee-outputs:
+    driver: local
+
+networks:
+  magdee-network:
+    driver: bridge

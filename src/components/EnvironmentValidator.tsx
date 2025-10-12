@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { validateSupabaseConfig, projectId, publicAnonKey } from '../utils/supabase/info';
+import { projectId, publicAnonKey } from '../utils/supabase/info';
 
 interface EnvironmentValidatorProps {
   children: React.ReactNode;
@@ -26,9 +26,11 @@ export function EnvironmentValidator({ children }: EnvironmentValidatorProps) {
     const validateEnvironment = async () => {
       try {
         // Validate Supabase configuration
-        const supabaseValidation = validateSupabaseConfig();
-        const errors = [...supabaseValidation.errors];
+        const errors: string[] = [];
         const warnings: string[] = [];
+        
+        // Basic validation - check if values exist
+        const isValid = Boolean(projectId && publicAnonKey);
 
         // Check if we're using fallback/example values
         const usingFallbackUrl = projectId === 'djsjlwgtyfzhcnbvoubo';
@@ -69,7 +71,7 @@ export function EnvironmentValidator({ children }: EnvironmentValidatorProps) {
         }
 
         // Test basic connectivity only if configuration looks valid
-        if (!configurationNeeded && isDevelopment && supabaseValidation.isValid) {
+        if (!configurationNeeded && isDevelopment && isValid) {
           try {
             const controller = new AbortController();
             setTimeout(() => controller.abort(), 2000);

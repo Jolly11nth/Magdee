@@ -1,0 +1,85 @@
+name: Deploy Python Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'app/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+  workflow_dispatch:
+
+jobs:
+  deploy-railway:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install Railway CLI
+      run: npm install -g @railway/cli
+    
+    - name: Deploy to Railway
+      run: railway up
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    
+    - name: Deployment notification
+      run: |
+        echo "🚀 Python backend deployed to Railway"
+        echo "🌐 URL: https://your-app.up.railway.app"
+
+  deploy-render:
+    name: Deploy to Render (Alternative)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Trigger Render Deploy
+      run: |
+        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+    
+    - name: Wait for deployment
+      run: sleep 60
+    
+    - name: Health check
+      run: |
+        curl -f https://your-app.onrender.com/api/health || exit 1
+    
+    - name: Deployment notification
+      if: success()
+      run: echo "✅ Deployment to Render successful"
+
+  docker-build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/magdee-python-backend:latest
+          ${{ secrets.DOCKER_USERNAME }}/magdee-python-backend:${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/magdee-python-backend:latest
+        cache-to: type=inline

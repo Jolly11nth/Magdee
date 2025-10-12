@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { DatabaseService } from '../services/database';
 import { useAuth } from './AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
+import { BackButton } from './BackButton';
 
 interface ConnectionDebugScreenProps {
   onNavigate: (screen: string) => void;
@@ -115,22 +115,12 @@ export function ConnectionDebugScreen({ onNavigate }: ConnectionDebugScreenProps
         padding: '1rem 1.5rem',
         borderBottom: '1px solid #F3F4F6'
       }}>
-        <button
+        <BackButton
           onClick={() => onNavigate('back')}
-          style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0.5rem',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: '1rem'
-          }}
-        >
-          <ArrowLeft size={24} color="#374151" />
-        </button>
+          title="Go back to previous screen"
+          aria-label="Return to previous screen"
+          style={{ marginRight: '1rem' }}
+        />
         
         <div>
           <h1 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1F2937', margin: 0 }}>

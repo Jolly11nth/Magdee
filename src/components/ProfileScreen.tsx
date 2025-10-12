@@ -245,6 +245,7 @@ export function ProfileScreen({ onNavigate }) {
         >
           🔔 Notifications
         </button>
+
         
         <button 
           style={{

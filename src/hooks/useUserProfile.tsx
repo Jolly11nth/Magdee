@@ -342,6 +342,7 @@ export function useProfilePicture(): {
 // Hook for getting user display information - simplified to use auth data primarily
 export function useUserDisplayInfo(): {
   displayName: string;
+  username: string | null;
   profilePictureUrl: string | null;
   email: string;
   loading: boolean;
@@ -353,6 +354,14 @@ export function useUserDisplayInfo(): {
 
   // Prefer auth user data for reliability
   const currentUser = authUser || profile;
+
+  // Get username directly from database
+  const username = React.useMemo(() => {
+    if (!currentUser) return null;
+    
+    // Return the username field exactly as stored in the database
+    return currentUser.username || null;
+  }, [currentUser]);
 
   // Get display name with safe fallbacks
   const displayName = React.useMemo(() => {
@@ -390,6 +399,7 @@ export function useUserDisplayInfo(): {
 
   return {
     displayName,
+    username,
     profilePictureUrl,
     email,
     loading,

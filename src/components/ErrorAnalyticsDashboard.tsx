@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, TrendingUp, Clock, AlertCircle, RefreshCw, Download } from 'lucide-react';
 import { useErrorAnalytics } from '../services/errorAnalytics';
+import { BackButton } from './BackButton';
 
 interface ErrorAnalyticsDashboardProps {
   onNavigate?: (screen: string) => void;
@@ -111,19 +112,11 @@ export function ErrorAnalyticsDashboard({ onNavigate }: ErrorAnalyticsDashboardP
         marginBottom: '1.5rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button
+          <BackButton
             onClick={() => onNavigate?.('settings')}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '1.5rem',
-              color: '#374151'
-            }}
-          >
-            ←
-          </button>
+            title="Go back to settings"
+            aria-label="Return to settings screen"
+          />
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <AlertTriangle size={20} color="#4A90E2" />
             <h1 style={{

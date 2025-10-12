@@ -41,7 +41,8 @@ export function HomeScreen({
   
   // Use database-connected user display info with connection status
   const { 
-    displayName, 
+    displayName,
+    username, 
     profilePictureUrl, 
     email, 
     loading: profileLoading, 
@@ -68,9 +69,10 @@ export function HomeScreen({
     profileImage: profilePictureUrl,
   };
 
-  // Get display name function (now uses database-connected data)
-  const getDisplayName = () => {
-    return displayName || "Guest";
+  // Get username function (retrieves username from database collected during signup)
+  const getUsername = () => {
+    // Return the username from database, or fall back to displayName if no username
+    return username || displayName || "Guest";
   };
 
   // Refresh profile picture when component mounts or when user changes
@@ -300,7 +302,7 @@ export function HomeScreen({
                   textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                {getDisplayName()}
+                {getUsername()}
               </span>
               {profileLoading && (
                 <div
@@ -985,95 +987,108 @@ export function HomeScreen({
       <div
         style={{
           position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "70px",
-          backgroundColor: "#ffffff",
-          borderTop: "1px solid #F3F4F6",
+          bottom: "1.25rem",
+          left: "1.25rem",
+          right: "1.25rem",
+          backgroundColor: "#E3F2FD",
+          borderRadius: "15px",
+          padding: "0 1rem",
           display: "flex",
           justifyContent: "space-around",
           alignItems: "center",
-          padding: "0 1rem",
-          zIndex: 10,
         }}
       >
         <button
+          onClick={() => onNavigate("home")}
           style={{
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "0.5rem",
-            borderRadius: "0.5rem",
-            color: "#4A90E2",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             gap: "0.25rem",
-            fontSize: "0.7rem",
-            fontWeight: "500",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "0.5rem",
+            color: "#4A90E2", // Active state for current screen
           }}
         >
-          <Home size={20} />
-          Home
+          <Home size={24} />
+          <span
+            style={{
+              fontSize: "0.8rem",
+              fontWeight: "500",
+            }}
+          >
+            Home
+          </span>
         </button>
+
         <button
-          onClick={() => onNavigate("my-library")} // Fixed: was "library", should be "my-library"
+          onClick={() => onNavigate("my-library")}
           style={{
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "0.5rem",
-            borderRadius: "0.5rem",
-            color: "#9CA3AF",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             gap: "0.25rem",
-            fontSize: "0.7rem",
-            fontWeight: "500",
-            transition: "all 0.2s ease",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "0.5rem",
+            color: "#6B7280",
+            transition: "all 0.2s ease"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#4A90E2";
-            e.currentTarget.style.transform = "translateY(-1px)";
+            e.target.style.color = "#4A90E2";
+            e.target.style.transform = "translateY(-1px)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#9CA3AF";
-            e.currentTarget.style.transform = "translateY(0)";
+            e.target.style.color = "#6B7280";
+            e.target.style.transform = "translateY(0)";
           }}
         >
-          <Headphones size={20} />
-          Library
+          <Headphones size={24} />
+          <span
+            style={{
+              fontSize: "0.8rem",
+              fontWeight: "500",
+            }}
+          >
+            Audio books
+          </span>
         </button>
+
         <button
           onClick={() => onNavigate("profile")}
           style={{
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "0.5rem",
-            borderRadius: "0.5rem",
-            color: "#9CA3AF",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             gap: "0.25rem",
-            fontSize: "0.7rem",
-            fontWeight: "500",
-            transition: "all 0.2s ease",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "0.5rem",
+            color: "#6B7280",
+            transition: "all 0.2s ease"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#4A90E2";
-            e.currentTarget.style.transform = "translateY(-1px)";
+            e.target.style.color = "#4A90E2";
+            e.target.style.transform = "translateY(-1px)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#9CA3AF";
-            e.currentTarget.style.transform = "translateY(0)";
+            e.target.style.color = "#6B7280";
+            e.target.style.transform = "translateY(0)";
           }}
         >
-          <User size={20} />
-          Profile
+          <User size={24} />
+          <span
+            style={{
+              fontSize: "0.8rem",
+              fontWeight: "500",
+            }}
+          >
+            Profile
+          </span>
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useNotificationHelpers } from './NotificationHelpers';
 import { usePDFUpload, UploadProgress, PDFUploadData } from '../services/pdfUploadService';
 import { useAuth } from './AuthContext';
+import { BackButton } from './BackButton';
 
 export function UploadPDFScreen({ onNavigate }) {
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
@@ -136,18 +137,11 @@ export function UploadPDFScreen({ onNavigate }) {
         padding: '1rem 1.5rem',
         borderBottom: '1px solid #F3F4F6'
       }}>
-        <button 
+        <BackButton 
           onClick={() => onNavigate('back')}
-          style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            color: '#374151'
-          }}
-        >
-          ←
-        </button>
+          title="Go back to previous screen"
+          aria-label="Return to previous screen"
+        />
         <h2 style={{
           fontSize: '1.125rem',
           fontWeight: '600',

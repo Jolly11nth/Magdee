@@ -1,4 +1,5 @@
 import React from 'react';
+import { BackButton } from './BackButton';
 
 export function SpeakToTherapistScreen({ onNavigate }) {
   return (
@@ -20,20 +21,11 @@ export function SpeakToTherapistScreen({ onNavigate }) {
       }}>
         Speak to Therapist
       </div>
-      <button 
+      <BackButton 
         onClick={() => onNavigate('back')}
-        style={{
-          backgroundColor: '#4A90E2',
-          color: 'white',
-          padding: '1rem 2rem',
-          borderRadius: '0.5rem',
-          border: 'none',
-          fontSize: '1rem',
-          cursor: 'pointer'
-        }}
-      >
-        Back to Home
-      </button>
+        title="Go back to previous screen"
+        aria-label="Return to previous screen"
+      />
     </div>
   );
 }

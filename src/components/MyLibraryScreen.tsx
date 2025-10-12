@@ -5,6 +5,7 @@ import { NotificationBell } from './NotificationBell';
 import { useAuth } from './AuthContext';
 import { DatabaseService } from '../services/database';
 import { Book } from '../types/database';
+import { BackButton } from './BackButton';
 
 export function MyLibraryScreen({ onNavigate, onSelectBook, books: propBooks }) {
   const [viewMode, setViewMode] = useState('list');
@@ -223,19 +224,12 @@ export function MyLibraryScreen({ onNavigate, onSelectBook, books: propBooks }) 
           marginBottom: '1rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button 
+            <BackButton 
               onClick={() => onNavigate('back')}
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                fontSize: '1.5rem',
-                cursor: 'pointer',
-                marginRight: '1rem',
-                color: '#374151'
-              }}
-            >
-              ←
-            </button>
+              title="Go back to previous screen"
+              aria-label="Return to previous screen"
+              style={{ marginRight: '1rem' }}
+            />
             <h2 style={{
               fontSize: '1.125rem',
               fontWeight: '600',

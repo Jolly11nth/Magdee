@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { AuthErrorMessage } from './AuthErrorMessage';
 import { useErrorAnalytics } from '../services/errorAnalytics';
+import { BackButton } from './BackButton';
 import magdeeLogo from 'figma:asset/f82a941c409d8064bd2a0c4bcb7ad4befc1175e2.png';
 
 export function SignupScreen({ onNavigate, onSignupSuccess }) {
@@ -139,20 +140,12 @@ export function SignupScreen({ onNavigate, onSignupSuccess }) {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <button 
+          <BackButton 
             onClick={() => onNavigate('auth')}
             disabled={isLoading}
-            style={{
-              backgroundColor: 'transparent',
-              border: 'none',
-              fontSize: '1.5rem',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              color: '#374151',
-              opacity: isLoading ? 0.6 : 1
-            }}
-          >
-            ←
-          </button>
+            title="Go back to auth screen"
+            aria-label="Return to auth screen"
+          />
           <div style={{
             display: 'flex',
             alignItems: 'center',

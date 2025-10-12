@@ -48,6 +48,8 @@ import { handleGetRecentBooks, handleGetBookById, handleUpdateBookProgress as ha
 // Import seed handler
 import { handleSeedData } from "./seed.tsx";
 
+
+
 const app = new Hono();
 
 // Enable logger
@@ -568,6 +570,8 @@ app.post("/make-server-989ff5a9/seed-data", async (c) => {
     );
   }
 });
+
+
 
 console.log("🚀 Magdee server starting up...");
 Deno.serve(app.fetch);

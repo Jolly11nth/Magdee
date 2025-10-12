@@ -1,485 +1,291 @@
 /**
- * Python Backend Service
- * Handles communication with the FastAPI Python backend
+ * Python Backend Service Integration
+ * Handles communication with the FastAPI Python backend for PDF processing, audio conversion, and analytics
  */
 
 import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { getEnvVar, ENV_CONFIG } from '../utils/environment';
 
-// Configuration
-const PYTHON_BACKEND_URL = ENV_CONFIG.pythonBackendUrl;
-const API_VERSION = 'v1';
-const BASE_API_URL = `${PYTHON_BACKEND_URL}/api/${API_VERSION}`;
+// Python backend configuration
+const PYTHON_BACKEND_URL = import.meta.env.VITE_PYTHON_BACKEND_URL || 'http://localhost:8000';
 
-// Types
-export interface PythonBackendResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
+export interface PythonBackendConfig {
+  baseURL: string;
+  timeout: number;
+  retryAttempts: number;
 }
 
-export interface PDFUploadResponse {
-  success: boolean;
-  book_id: string;
-  title: string;
-  status: string;
-  message: string;
-  estimated_processing_time?: string;
-}
+const config: PythonBackendConfig = {
+  baseURL: PYTHON_BACKEND_URL,
+  timeout: 30000, // 30 seconds
+  retryAttempts: 3
+};
 
-export interface BookProcessingStatus {
-  book_id: string;
-  title: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  progress: number;
-  created_at: string;
-  updated_at: string;
-  audio_url?: string;
-  duration?: number;
-  error_message?: string;
-}
-
-export interface ChatResponse {
-  success: boolean;
-  response: {
-    message: string;
-    suggestions?: string[];
-    mood_check?: boolean;
-    resources?: string[];
+/**
+ * Make authenticated API call to Python backend
+ */
+async function apiCall<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  accessToken?: string
+): Promise<{success: boolean; data?: T; error?: string}> {
+  const url = `${config.baseURL}${endpoint}`;
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options.headers as Record<string, string>) || {})
   };
-  chat_id: string;
-  timestamp: string;
-}
 
-export interface MoodEntry {
-  mood: string;
-  intensity: number;
-  notes?: string;
-  triggers?: string[];
-}
+  // Add authorization if token provided
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
-export interface UserAnalytics {
-  summary: {
-    total_books: number;
-    total_activities: number;
-    mood_entries: number;
-    chat_messages: number;
-    account_age_days: number;
-  };
-  usage_patterns: any;
-  book_analytics: any;
-  mood_analytics: any;
-  engagement_metrics: any;
-}
-
-class PythonBackendService {
-  private backendUrl: string;
-  private baseApiUrl: string;
-  private isConfigured: boolean;
-
-  constructor() {
-    this.backendUrl = PYTHON_BACKEND_URL;
-    this.baseApiUrl = BASE_API_URL;
-    this.isConfigured = this.backendUrl !== 'http://localhost:8000' || ENV_CONFIG.isDevelopment;
+  try {
+    console.log(`🐍 Python Backend: ${options.method || 'GET'} ${endpoint}`);
     
-    // Log configuration for debugging
-    if (ENV_CONFIG.isDevelopment) {
-      console.log('🐍 Python Backend Service initialized:', {
-        backendUrl: this.backendUrl,
-        baseApiUrl: this.baseApiUrl,
-        isConfigured: this.isConfigured
-      });
-    }
-  }
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: AbortSignal.timeout(config.timeout)
+    });
 
-  private getAuthHeaders(accessToken: string) {
-    return {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-  }
-
-  private async makeRequest<T>(
-    endpoint: string, 
-    options: RequestInit = {}, 
-    accessToken?: string
-  ): Promise<PythonBackendResponse<T>> {
-    try {
-      const url = `${this.baseApiUrl}${endpoint}`;
-      
-      if (ENV_CONFIG.isDevelopment) {
-        console.log(`🐍 Python Backend API call: ${options.method || 'GET'} ${url}`);
-      }
-
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
-
-      // Add authorization if token provided
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...headers,
-          ...options.headers,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error(`❌ Python Backend API error:`, {
-          status: response.status,
-          statusText: response.statusText,
-          data
-        });
-        
-        return {
-          success: false,
-          error: data.error || `HTTP ${response.status}: ${response.statusText}`,
-          data: null
-        };
-      }
-
-      if (ENV_CONFIG.isDevelopment) {
-        console.log(`✅ Python Backend API success:`, data);
-      }
-      return data;
-
-    } catch (error) {
-      console.error('❌ Python Backend network error:', error);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error(`❌ Python Backend Error:`, errorData);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error occurred',
-        data: null
+        error: errorData.error || errorData.message || `HTTP ${response.status}`
       };
     }
-  }
 
-  // Health and status checks
-  async checkHealth(): Promise<PythonBackendResponse> {
-    return this.makeRequest('/health');
-  }
-
-  async getApiStatus(): Promise<PythonBackendResponse> {
-    return this.makeRequest('/status');
-  }
-
-  // PDF Processing
-  async uploadPDF(
-    userId: string, 
-    file: File, 
-    title: string, 
-    author: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse<PDFUploadResponse>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', title);
-    formData.append('author', author);
-
-    return this.makeRequest<PDFUploadResponse>(
-      `/pdf/upload/${userId}`,
-      {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          // Don't set Content-Type for FormData - let browser set it with boundary
-        },
-      }
-    );
-  }
-
-  async getProcessingStatus(
-    bookId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse<BookProcessingStatus>> {
-    return this.makeRequest<BookProcessingStatus>(
-      `/pdf/status/${bookId}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async deletePDF(
-    bookId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/pdf/${bookId}`,
-      { method: 'DELETE' },
-      accessToken
-    );
-  }
-
-  // AI Features
-  async sendChatMessage(
-    userId: string,
-    message: string,
-    accessToken: string,
-    sessionId?: string,
-    context?: string
-  ): Promise<PythonBackendResponse<ChatResponse>> {
-    return this.makeRequest<ChatResponse>(
-      `/ai/chat/${userId}`,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          message,
-          session_id: sessionId || 'default',
-          context
-        }),
-      },
-      accessToken
-    );
-  }
-
-  async getChatHistory(
-    userId: string,
-    accessToken: string,
-    sessionId?: string,
-    limit = 50
-  ): Promise<PythonBackendResponse> {
-    const params = new URLSearchParams();
-    if (sessionId) params.append('session_id', sessionId);
-    params.append('limit', limit.toString());
-
-    return this.makeRequest(
-      `/ai/chat/${userId}/history?${params.toString()}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async logMood(
-    userId: string,
-    moodEntry: MoodEntry,
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/ai/mood/${userId}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(moodEntry),
-      },
-      accessToken
-    );
-  }
-
-  async getMoodHistory(
-    userId: string,
-    accessToken: string,
-    days = 30
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/ai/mood/${userId}?days=${days}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async analyzeMood(
-    userId: string,
-    accessToken: string,
-    period = 'week'
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/ai/mood/${userId}/analysis`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ period }),
-      },
-      accessToken
-    );
-  }
-
-  // User Management
-  async getUserProfile(
-    userId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/users/${userId}/profile`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async updateUserPreferences(
-    userId: string,
-    preferences: any,
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/users/${userId}/preferences`,
-      {
-        method: 'PUT',
-        body: JSON.stringify(preferences),
-      },
-      accessToken
-    );
-  }
-
-  async getUserBooks(
-    userId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/users/${userId}/books`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async getUserActivity(
-    userId: string,
-    accessToken: string,
-    limit = 50,
-    activityType?: string
-  ): Promise<PythonBackendResponse> {
-    const params = new URLSearchParams();
-    params.append('limit', limit.toString());
-    if (activityType) params.append('activity_type', activityType);
-
-    return this.makeRequest(
-      `/users/${userId}/activity?${params.toString()}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  // Analytics
-  async getAnalyticsOverview(
-    userId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse<UserAnalytics>> {
-    return this.makeRequest<UserAnalytics>(
-      `/analytics/overview/${userId}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async getUsageAnalytics(
-    userId: string,
-    accessToken: string,
-    period = 'week'
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/analytics/usage/${userId}?period=${period}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async getBookAnalytics(
-    userId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/analytics/books/${userId}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async getMoodAnalytics(
-    userId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/analytics/mood/${userId}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  // Audio Management
-  async getAudioMetadata(
-    bookId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/audio/metadata/${bookId}`,
-      { method: 'GET' },
-      accessToken
-    );
-  }
-
-  async regenerateAudio(
-    bookId: string, 
-    accessToken: string
-  ): Promise<PythonBackendResponse> {
-    return this.makeRequest(
-      `/audio/generate/${bookId}`,
-      { method: 'POST' },
-      accessToken
-    );
-  }
-
-  // Utility methods
-  getAudioStreamUrl(bookId: string): string {
-    return `${this.baseApiUrl}/audio/stream/${bookId}`;
-  }
-
-  isBackendAvailable(): Promise<boolean> {
-    return this.checkHealth()
-      .then(response => response.success)
-      .catch(() => false);
-  }
-
-  async testConnection(): Promise<{
-    backend_available: boolean;
-    api_status: boolean;
-    database_connected: boolean;
-    response_time: number;
-  }> {
-    const startTime = Date.now();
+    const data = await response.json();
+    console.log(`✅ Python Backend Success:`, endpoint);
     
-    try {
-      const [healthCheck, apiStatus] = await Promise.all([
-        this.checkHealth(),
-        this.getApiStatus()
-      ]);
+    return { success: true, data };
 
-      const responseTime = Date.now() - startTime;
-
-      return {
-        backend_available: healthCheck.success,
-        api_status: apiStatus.success,
-        database_connected: healthCheck.data?.services?.database === 'operational',
-        response_time: responseTime
-      };
-    } catch (error) {
-      return {
-        backend_available: false,
-        api_status: false,
-        database_connected: false,
-        response_time: Date.now() - startTime
-      };
-    }
-  }
-
-  // Get current configuration (for debugging)
-  getConfig() {
+  } catch (error) {
+    console.error(`💥 Python Backend Request Failed:`, error);
     return {
-      backendUrl: this.backendUrl,
-      baseApiUrl: this.baseApiUrl,
-      isConfigured: this.isConfigured,
-      environmentConfig: ENV_CONFIG
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
 
-// Export singleton instance
-export const pythonBackend = new PythonBackendService();
+/**
+ * PDF Processing Service
+ */
+export const PDFService = {
+  /**
+   * Upload PDF for processing
+   */
+  async uploadPDF(
+    userId: string,
+    file: File,
+    metadata: { title?: string; author?: string },
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const url = `${config.baseURL}/api/v1/pdf/upload/${userId}`;
+    const queryParams = new URLSearchParams();
+    if (metadata.title) queryParams.append('title', metadata.title);
+    if (metadata.author) queryParams.append('author', metadata.author);
+    
+    const fullUrl = queryParams.toString() ? `${url}?${queryParams}` : url;
 
-// Export for testing
-export { PythonBackendService };
+    try {
+      const response = await fetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+        return { success: false, error: errorData.error || 'Upload failed' };
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Upload failed'
+      };
+    }
+  },
+
+  /**
+   * Get PDF processing status
+   */
+  async getStatus(
+    bookId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/pdf/status/${bookId}`, {
+      method: 'GET'
+    }, accessToken);
+  },
+
+  /**
+   * Delete PDF
+   */
+  async deletePDF(
+    bookId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/pdf/${bookId}`, {
+      method: 'DELETE'
+    }, accessToken);
+  }
+};
+
+/**
+ * Audio Service
+ */
+export const AudioService = {
+  /**
+   * Get audio stream URL
+   */
+  getStreamURL(bookId: string): string {
+    return `${config.baseURL}/api/v1/audio/stream/${bookId}`;
+  },
+
+  /**
+   * Get audio metadata
+   */
+  async getMetadata(
+    bookId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/audio/metadata/${bookId}`, {
+      method: 'GET'
+    }, accessToken);
+  },
+
+  /**
+   * Regenerate audio with different settings
+   */
+  async regenerateAudio(
+    bookId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/audio/generate/${bookId}`, {
+      method: 'POST'
+    }, accessToken);
+  },
+
+  /**
+   * Delete audio file
+   */
+  async deleteAudio(
+    bookId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/audio/${bookId}`, {
+      method: 'DELETE'
+    }, accessToken);
+  }
+};
+
+/**
+ * Analytics Service
+ */
+export const AnalyticsService = {
+  /**
+   * Get analytics overview
+   */
+  async getOverview(
+    userId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/analytics/overview/${userId}`, {
+      method: 'GET'
+    }, accessToken);
+  },
+
+  /**
+   * Get usage analytics
+   */
+  async getUsageAnalytics(
+    userId: string,
+    period: 'week' | 'month' | 'year',
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/analytics/usage/${userId}?period=${period}`, {
+      method: 'GET'
+    }, accessToken);
+  },
+
+  /**
+   * Get book analytics
+   */
+  async getBookAnalytics(
+    userId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/analytics/books/${userId}`, {
+      method: 'GET'
+    }, accessToken);
+  },
+
+  /**
+   * Get mood analytics
+   */
+  async getMoodAnalytics(
+    userId: string,
+    accessToken: string
+  ): Promise<{success: boolean; data?: any; error?: string}> {
+    return apiCall(`/api/v1/analytics/mood/${userId}`, {
+      method: 'GET'
+    }, accessToken);
+  }
+};
+
+/**
+ * Health check for Python backend
+ */
+export async function checkPythonBackendHealth(): Promise<{
+  healthy: boolean;
+  environment?: string;
+  services?: Record<string, string>;
+}> {
+  try {
+    const response = await fetch(`${config.baseURL}/api/health`, {
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    });
+
+    if (!response.ok) {
+      return { healthy: false };
+    }
+
+    const data = await response.json();
+    return {
+      healthy: data.status === 'healthy',
+      environment: data.environment,
+      services: data.services
+    };
+
+  } catch (error) {
+    console.warn('Python backend health check failed:', error);
+    return { healthy: false };
+  }
+}
+
+/**
+ * Python Backend Service - Main export
+ */
+export const PythonBackendService = {
+  PDF: PDFService,
+  Audio: AudioService,
+  Analytics: AnalyticsService,
+  checkHealth: checkPythonBackendHealth,
+  config
+};
+
+export default PythonBackendService;

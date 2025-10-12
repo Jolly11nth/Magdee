@@ -131,11 +131,8 @@ const PrivacyPolicyScreen = createLazyComponent(
 );
 
 // Optional debug screens - these might not exist
-const PythonBackendTestScreen = createLazyComponent(
-  () => import('./PythonBackendTestScreen'),
-  'PythonBackendTestScreen',
-  'PythonBackendTestScreen'
-);
+
+
 
 interface ScreenRouterProps {
   currentScreen: string;
@@ -199,21 +196,11 @@ class ScreenErrorBoundary extends React.Component<
             }}>
               Screen Error
             </h1>
-            <button
+            <BackButton
               onClick={() => this.props.onNavigate('back')}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#F3F4F6',
-                color: '#374151',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Back
-            </button>
+              title="Go back to previous screen"
+              aria-label="Return to previous screen"
+            />
           </div>
 
           {/* Error content */}
@@ -384,8 +371,9 @@ function ScreenRouterComponent({
       case 'privacy-policy':
         return <PrivacyPolicyScreen {...commonProps} />;
 
-      case 'python-backend-test':
-        return <PythonBackendTestScreen {...commonProps} />;
+
+      
+
       
       default:
         console.warn(`Unknown screen: ${currentScreen}. Redirecting to welcome.`);

@@ -1,4 +1,5 @@
 import React from 'react';
+import { BackButton } from './BackButton';
 
 interface DebugFallbackProps {
   screenName: string;
@@ -35,21 +36,11 @@ function DebugFallbackComponent({ screenName, onNavigate }: DebugFallbackProps) 
         }}>
           {screenName}
         </h1>
-        <button
+        <BackButton
           onClick={() => onNavigate('back')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#F3F4F6',
-            color: '#374151',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer'
-          }}
-        >
-          Back
-        </button>
+          title="Go back to previous screen"
+          aria-label="Return to previous screen"
+        />
       </div>
 
       {/* Content */}

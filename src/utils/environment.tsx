@@ -6,7 +6,6 @@
 export interface EnvironmentConfig {
   isDevelopment: boolean;
   isProduction: boolean;
-  pythonBackendUrl: string;
   supabaseUrl: string;
   supabaseAnonKey: string;
   debugMode: boolean;
@@ -106,7 +105,6 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
   return {
     isDevelopment: isDev,
     isProduction: !isDev,
-    pythonBackendUrl: getEnvVar('REACT_APP_PYTHON_BACKEND_URL', 'http://localhost:8000'),
     supabaseUrl: getEnvVar('REACT_APP_SUPABASE_URL', ''),
     supabaseAnonKey: getEnvVar('REACT_APP_SUPABASE_ANON_KEY', ''),
     debugMode: getEnvVar('REACT_APP_DEBUG_MODE', 'false').toLowerCase() === 'true'
@@ -146,11 +144,7 @@ export const validateEnvironment = (): { isValid: boolean; errors: string[] } =>
     if (!config.supabaseAnonKey) {
       errors.push('REACT_APP_SUPABASE_ANON_KEY is required');
     }
-    
-    // Python backend URL is optional, but warn if not set in development
-    if (config.isDevelopment && !config.pythonBackendUrl) {
-      console.warn('⚠️ Python backend URL not configured. Python backend features will be disabled.');
-    }
+
     
     return {
       isValid: errors.length === 0,
@@ -192,7 +186,6 @@ export const initializeEnvironment = (): EnvironmentConfig => {
     return {
       isDevelopment: true,
       isProduction: false,
-      pythonBackendUrl: 'http://localhost:8000',
       supabaseUrl: '',
       supabaseAnonKey: '',
       debugMode: false
@@ -209,7 +202,6 @@ try {
   ENV_CONFIG = {
     isDevelopment: true,
     isProduction: false,
-    pythonBackendUrl: 'http://localhost:8000',
     supabaseUrl: '',
     supabaseAnonKey: '',
     debugMode: false

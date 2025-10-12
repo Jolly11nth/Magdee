@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
+import { BackButton } from './BackButton';
 
 interface LoginDebugScreenProps {
   onNavigate: (screen: string) => void;
@@ -93,18 +94,12 @@ export function LoginDebugScreen({ onNavigate }: LoginDebugScreenProps) {
         paddingBottom: '1rem',
         borderBottom: '1px solid #E5E7EB'
       }}>
-        <button
+        <BackButton
           onClick={() => onNavigate('login')}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            marginRight: '1rem'
-          }}
-        >
-          ←
-        </button>
+          title="Go back to login screen"
+          aria-label="Return to login screen"
+          style={{ marginRight: '1rem' }}
+        />
         <h1 style={{
           fontSize: '1.25rem',
           fontWeight: '600',

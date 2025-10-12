@@ -3,7 +3,8 @@ import { AuthProvider, useAuth } from './components/AuthContext';
 import { NotificationProvider } from './components/NotificationContext';
 import { ToastContainer } from './components/ToastNotification';
 import { ConnectionStatus } from './components/ConnectionStatus';
-import { PythonBackendStatus } from './components/PythonBackendStatus';
+
+
 import { EnvironmentValidator } from './components/EnvironmentValidator';
 import { AuthLoadingScreen, AppInitLoadingScreen } from './components/LoadingScreen';
 import { PerformanceOptimizer, PerformanceErrorBoundary } from './components/PerformanceOptimizer';
@@ -13,19 +14,7 @@ import { createNavigationHandler, createBookHandlers } from './utils/navigation'
 import { BOOKS_DATA } from './constants/booksData';
 import { errorAnalytics } from './services/errorAnalytics';
 
-// Safe environment check
-const isDevelopmentMode = (): boolean => {
-  // Simple and safe environment detection
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    const isDev = hostname === 'localhost' || 
-                  hostname === '127.0.0.1' || 
-                  hostname.includes('dev') ||
-                  hostname.includes('staging');
-    return isDev;
-  }
-  return true; // Default to development mode for safety
-};
+
 
 function AppContentComponent() {
   const { user, loading } = useAuth();
@@ -33,8 +22,8 @@ function AppContentComponent() {
   const [navigationHistory, setNavigationHistory] = useState<string[]>(['welcome']);
   const [books] = useState(BOOKS_DATA);
   const [appInitialized, setAppInitialized] = useState(false);
-  const [showPythonBackendDetails, setShowPythonBackendDetails] = useState(false);
-  const [isDevelopment] = useState(isDevelopmentMode());
+
+
   
   const audioPlayerHandlers = useAudioPlayer(books);
   const { selectedBook, setSelectedBook } = audioPlayerHandlers;
@@ -174,14 +163,7 @@ function AppContentComponent() {
           </Suspense>
           <ToastContainer />
           <ConnectionStatus />
-          
-          {/* Python Backend Status - only show in development */}
-          {isDevelopment && (
-            <PythonBackendStatus 
-              showDetails={true}
-              onToggleDetails={() => setShowPythonBackendDetails(!showPythonBackendDetails)}
-            />
-          )}
+
         </div>
       </div>
     </NotificationProvider>

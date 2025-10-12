@@ -1,213 +1,139 @@
+"""
+Custom middleware for Magdee API
+"""
+
 import time
 import logging
-from typing import Optional, Dict, Any
-from fastapi import Request, Response, HTTPException, status
-from fastapi.responses import JSONResponse
-from datetime import datetime
-
-from app.database import verify_user_auth, update_user_activity
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-async def auth_middleware(request: Request, call_next):
-    """Authentication middleware for protected routes"""
+class LoggingMiddleware(BaseHTTPMiddleware):
+    """Log all requests and responses"""
     
-    # Skip auth for public endpoints
-    public_paths = [
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+        
+        # Log request
+        logger.info(f"➡️  {request.method} {request.url.path}")
+        
+        # Process request
+        response = await call_next(request)
+        
+        # Calculate processing time
+        process_time = time.time() - start_time
+        
+        # Add custom header
+        response.headers["X-Process-Time"] = str(process_time)
+        
+        # Log response
+        logger.info(
+            f"⬅️  {request.method} {request.url.path} - "
+            f"Status: {response.status_code} - "
+            f"Time: {process_time:.3f}s"
+        )
+        
+        return response
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Simple rate limiting middleware"""
+    
+    def __init__(self, app, max_requests_per_minute: int = 60):
+        super().__init__(app)
+        self.max_requests_per_minute = max_requests_per_minute
+        self.requests = defaultdict(list)
+    
+    async def dispatch(self, request: Request, call_next):
+        # Get client IP
+        client_ip = request.client.host if request.client else "unknown"
+        
+        # Get current time
+        now = datetime.now()
+        minute_ago = now - timedelta(minutes=1)
+        
+        # Clean old requests
+        self.requests[client_ip] = [
+            req_time for req_time in self.requests[client_ip]
+            if req_time > minute_ago
+        ]
+        
+        # Check rate limit
+        if len(self.requests[client_ip]) >= self.max_requests_per_minute:
+            logger.warning(f"🚫 Rate limit exceeded for {client_ip}")
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "Rate limit exceeded",
+                    "message": f"Maximum {self.max_requests_per_minute} requests per minute allowed"
+                }
+            )
+        
+        # Add current request
+        self.requests[client_ip].append(now)
+        
+        # Process request
+        response = await call_next(request)
+        
+        # Add rate limit headers
+        response.headers["X-RateLimit-Limit"] = str(self.max_requests_per_minute)
+        response.headers["X-RateLimit-Remaining"] = str(
+            self.max_requests_per_minute - len(self.requests[client_ip])
+        )
+        
+        return response
+
+
+class AuthenticationMiddleware(BaseHTTPMiddleware):
+    """Verify Supabase access tokens"""
+    
+    # Paths that don't require authentication
+    EXCLUDED_PATHS = [
         "/",
-        "/health", 
-        "/docs",
-        "/redoc",
-        "/openapi.json",
-        "/api/v1/status",
-        "/api/v1/webhook"  # Webhooks might not need auth depending on implementation
+        "/api/health",
+        "/api/docs",
+        "/api/redoc",
+        "/api/openapi.json"
     ]
     
-    # Check if this is a public path
-    if any(request.url.path.startswith(path) for path in public_paths):
-        response = await call_next(request)
-        return response
-    
-    # Check for Authorization header
-    auth_header = request.headers.get("Authorization")
-    
-    if not auth_header or not auth_header.startswith("Bearer "):
-        # For API routes, require authentication
-        if request.url.path.startswith("/api/v1/"):
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"error": "Authorization token required", "code": "AUTH_REQUIRED"}
-            )
-    
-    # Extract token and user info if present
-    if auth_header and auth_header.startswith("Bearer "):
-        try:
-            access_token = auth_header.split(" ")[1]
-            
-            # Get user ID from path or query params
-            user_id = None
-            path_parts = request.url.path.split("/")
-            
-            # Look for user ID in path (e.g., /api/v1/users/{user_id}/...)
-            if "users" in path_parts:
-                try:
-                    user_idx = path_parts.index("users")
-                    if user_idx + 1 < len(path_parts):
-                        user_id = path_parts[user_idx + 1]
-                except (ValueError, IndexError):
-                    pass
-            
-            # Verify authentication if we have user ID
-            if user_id:
-                user_info = await verify_user_auth(user_id, access_token)
-                if not user_info:
-                    return JSONResponse(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        content={"error": "Invalid or expired token", "code": "AUTH_INVALID"}
-                    )
-                
-                # Add user info to request state
-                request.state.user = user_info
-                request.state.user_id = user_id
-                request.state.access_token = access_token
+    async def dispatch(self, request: Request, call_next):
+        # Skip authentication for excluded paths
+        if request.url.path in self.EXCLUDED_PATHS:
+            return await call_next(request)
         
-        except Exception as e:
-            logger.error(f"Auth middleware error: {e}")
-            if request.url.path.startswith("/api/v1/"):
-                return JSONResponse(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"error": "Authentication failed", "code": "AUTH_ERROR"}
-                )
-    
-    # Add request timing
-    start_time = time.time()
-    request.state.start_time = start_time
-    
-    # Process request
-    response = await call_next(request)
-    
-    # Log request completion
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
-    
-    # Log user activity if authenticated
-    if hasattr(request.state, "user_id"):
-        try:
-            await update_user_activity(
-                request.state.user_id,
-                "api_request",
-                {
-                    "method": request.method,
-                    "path": request.url.path,
-                    "status_code": response.status_code,
-                    "process_time": process_time
-                }
-            )
-        except Exception as e:
-            logger.warning(f"Failed to log user activity: {e}")
-    
-    return response
-
-async def error_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Global error handler"""
-    
-    # Log the error
-    logger.error(f"Unhandled exception: {exc}", exc_info=True)
-    
-    # Get process time if available
-    process_time = 0
-    if hasattr(request.state, "start_time"):
-        process_time = time.time() - request.state.start_time
-    
-    # Determine error response based on exception type
-    if isinstance(exc, HTTPException):
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={
-                "error": exc.detail,
-                "code": "HTTP_ERROR",
-                "timestamp": datetime.utcnow().isoformat(),
-                "process_time": process_time
-            }
-        )
-    
-    # Handle specific exception types
-    error_mappings = {
-        ValueError: (400, "INVALID_VALUE"),
-        FileNotFoundError: (404, "FILE_NOT_FOUND"),
-        PermissionError: (403, "PERMISSION_DENIED"),
-        ConnectionError: (503, "CONNECTION_ERROR"),
-        TimeoutError: (504, "TIMEOUT_ERROR")
-    }
-    
-    for exc_type, (status_code, error_code) in error_mappings.items():
-        if isinstance(exc, exc_type):
+        # Get authorization header
+        auth_header = request.headers.get("Authorization")
+        
+        if not auth_header or not auth_header.startswith("Bearer "):
             return JSONResponse(
-                status_code=status_code,
+                status_code=401,
                 content={
-                    "error": str(exc),
-                    "code": error_code,
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "process_time": process_time
+                    "error": "Unauthorized",
+                    "message": "Authorization header required"
                 }
             )
-    
-    # Generic server error
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "Internal server error",
-            "code": "INTERNAL_ERROR",
-            "timestamp": datetime.utcnow().isoformat(),
-            "process_time": process_time
-        }
-    )
-
-class RateLimiter:
-    """Simple in-memory rate limiter"""
-    
-    def __init__(self):
-        self.requests = {}
-    
-    def is_allowed(self, key: str, limit: int, window: int) -> bool:
-        """Check if request is allowed under rate limit"""
-        now = time.time()
         
-        # Clean old entries
-        self.requests = {
-            k: v for k, v in self.requests.items() 
-            if now - v["start"] < window
-        }
+        # Extract token
+        token = auth_header.split(" ")[1]
         
-        # Check current requests for this key
-        if key not in self.requests:
-            self.requests[key] = {"count": 1, "start": now}
-            return True
+        # Validate token (simplified - in production, verify with Supabase)
+        if not token or len(token) < 20:
+            return JSONResponse(
+                status_code=401,
+                content={
+                    "error": "Unauthorized",
+                    "message": "Invalid token"
+                }
+            )
         
-        if now - self.requests[key]["start"] >= window:
-            # Reset window
-            self.requests[key] = {"count": 1, "start": now}
-            return True
+        # Add token to request state for use in routes
+        request.state.token = token
         
-        if self.requests[key]["count"] >= limit:
-            return False
+        # Process request
+        response = await call_next(request)
         
-        self.requests[key]["count"] += 1
-        return True
-
-# Global rate limiter instance
-rate_limiter = RateLimiter()
-
-def get_client_ip(request: Request) -> str:
-    """Get client IP address"""
-    # Check for forwarded headers first (for proxy/load balancer setups)
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
-    
-    real_ip = request.headers.get("X-Real-IP")
-    if real_ip:
-        return real_ip
-    
-    # Fallback to direct client IP
-    return request.client.host if request.client else "unknown"
+        return response

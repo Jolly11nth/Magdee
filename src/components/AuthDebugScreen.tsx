@@ -191,18 +191,11 @@ export function AuthDebugScreen({ onNavigate }) {
         justifyContent: 'space-between',
         marginBottom: '2rem'
       }}>
-        <button
+        <BackButton
           onClick={() => onNavigate('welcome')}
-          style={{
-            padding: '0.5rem',
-            backgroundColor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1.5rem'
-          }}
-        >
-          ←
-        </button>
+          title="Go back to welcome screen"
+          aria-label="Return to welcome screen"
+        />
         <h1 style={{
           fontSize: '1.25rem',
           fontWeight: '600',

@@ -1,0 +1,74 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'components/**'
+      - 'services/**'
+      - 'App.tsx'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  deploy-vercel:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Install Vercel CLI
+      run: npm install -g vercel
+    
+    - name: Pull Vercel Environment
+      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+    
+    - name: Build Project
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+    
+    - name: Deploy to Vercel
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+    
+    - name: Deployment notification
+      run: echo "🚀 Frontend deployed to Vercel"
+
+  deploy-netlify:
+    name: Deploy to Netlify (Alternative)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+      env:
+        REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+        REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+        VITE_PYTHON_BACKEND_URL: ${{ secrets.VITE_PYTHON_BACKEND_URL }}
+    
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v2
+      with:
+        publish-dir: './dist'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions"
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
