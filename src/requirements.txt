@@ -1,25 +1,32 @@
-# Core FastAPI and async dependencies
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+# Core server framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Async I/O and utilities
 aiofiles==23.2.1
 python-multipart==0.0.6
-python-dotenv==1.0.0
-pydantic-settings==2.0.3
+python-dotenv==1.0.1
+pydantic-settings==2.2.1
+httpx==0.25.2
 
-# Supabase integration and async HTTP
-supabase==2.0.3
+# Database & Supabase
+supabase==2.3.5
 asyncpg==0.29.0
-httpx>=0.24.0,<0.25.0
 
-# PDF text extraction (choose one efficient library)
-pdfplumber==0.10.3
-
-# Audio and text-to-speech
+# PDF and Audio processing
+pdfplumber==0.11.0
+Pillow>=10.3.0
 pydub==0.25.1
-gTTS==2.4.0
-elevenlabs==0.2.26
+gTTS==2.5.1
+elevenlabs==0.2.27
 
-# Utilities
-requests==2.31.0
-Pillow==10.3.0
-python-dateutil==2.8.2
+# HTTP requests
+requests==2.32.3
+
+# Optional utilities (safe to include)
+starlette==0.37.2
+typing-extensions>=4.9.0
+
+# Render & deployment stability
+setuptools>=70.0.0
+wheel>=0.44.0
