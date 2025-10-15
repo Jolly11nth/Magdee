@@ -15,7 +15,7 @@ pydantic-settings==2.1.0  # Updated from 2.0.3 (bug fixes)
 # Supabase and Database
 # ==========================================
 supabase==2.3.4  # Updated from 2.0.3 (critical bug fixes)
-httpx==0.26.0  # Updated from 0.25.2 (compatibility with supabase)
+httpx==0.25.0  # Updated from 0.25.2 (compatibility with supabase)
 postgrest==0.13.2  # Added (required by supabase)
 realtime==1.0.5  # Added (required by supabase)
 storage3==0.7.4  # Added (required by supabase)
