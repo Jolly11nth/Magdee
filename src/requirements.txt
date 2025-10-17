@@ -15,7 +15,7 @@ pydantic-settings==2.1.0  # Updated from 2.0.3 (bug fixes)
 # Supabase and Database
 # ==========================================
 supabase==2.3.4  # Updated from 2.0.3 (critical bug fixes)
-httpx==0.26.0  # Updated from 0.25.2 (compatibility with supabase)
+httpx==0.25.2  # Updated from 0.25.2 (compatibility with supabase)
 postgrest==0.13.2  # Added (required by supabase)
 realtime==1.0.5  # Added (required by supabase)
 storage3==0.7.4  # Added (required by supabase)
@@ -85,7 +85,7 @@ flake8==7.0.0  # Updated from 6.1.0 (new rules)
 isort==5.13.2  # Added (import sorting)
 
 # Testing utilities
-httpx==0.26.0  # Already listed above but needed for testing
+httpx==0.25.2  # Already listed above but needed for testing
 pytest-mock==3.12.0  # Added (mocking support)
 
 # Security scanning
