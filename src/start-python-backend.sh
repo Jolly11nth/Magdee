@@ -57,43 +57,17 @@ echo -e "${GREEN}✓ Dependencies installed${NC}"
 
 # Check for .env file
 if [ ! -f ".env" ]; then
-    echo -e "${YELLOW}⚙️  Creating .env file from template...${NC}"
-    cat > .env << EOF
-# Magdee Python Backend Configuration
-
-# Environment
-ENVIRONMENT=development
-DEBUG=true
-
-# Supabase Configuration (copy from your Supabase project)
-SUPABASE_URL=https://djsjlwgtyfzhcnbvoubo.supabase.co
-SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-
-# Frontend Origin
-FRONTEND_ORIGIN=http://localhost:3000
-
-# Server Configuration
-PORT=8000
-LOG_LEVEL=INFO
-
-# File Upload Configuration  
-UPLOAD_PATH=/tmp/magdee/uploads
-OUTPUT_PATH=/tmp/magdee/outputs
-
-# Rate Limiting
-RATE_LIMIT_PER_MINUTE=60
-RATE_LIMIT_PER_HOUR=1000
-
-# TTS API Keys (Optional - for audio conversion)
-ELEVENLABS_API_KEY=your_elevenlabs_api_key
-# OPENAI_API_KEY=your_openai_api_key
-
-# Security
-JWT_SECRET_KEY=change_this_in_production_$(openssl rand -hex 32)
-EOF
-    echo -e "${GREEN}✓ .env file created${NC}"
-    echo -e "${YELLOW}⚠️  Please update .env with your Supabase credentials${NC}"
+    echo -e "${YELLOW}⚙️  No .env file found${NC}"
+    if [ -f ".env.example" ]; then
+        echo -e "${YELLOW}📋 Copying from .env.example...${NC}"
+        cp .env.example .env
+        echo -e "${GREEN}✓ .env file created${NC}"
+        echo -e "${YELLOW}⚠️  Please update .env with your actual credentials${NC}"
+    else
+        echo -e "${RED}❌ No .env.example found${NC}"
+        echo "Please create .env file manually or run: cp .env.example .env"
+        exit 1
+    fi
 fi
 
 # Create required directories
@@ -102,16 +76,21 @@ mkdir -p /tmp/magdee/uploads
 mkdir -p /tmp/magdee/outputs
 echo -e "${GREEN}✓ Directories created${NC}"
 
+# Get port from .env or use default
+PORT=$(grep -E "^PORT=" .env 2>/dev/null | cut -d '=' -f2 | tr -d ' ')
+PORT=${PORT:-8001}
+
 # Display startup information
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}🚀 Starting Magdee Python Backend Server${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo -e "  📍 Server: ${GREEN}http://localhost:8000${NC}"
-echo -e "  📚 API Docs: ${GREEN}http://localhost:8000/api/docs${NC}"
-echo -e "  ❤️  Health: ${GREEN}http://localhost:8000/api/health${NC}"
+echo -e "  📍 Server: ${GREEN}http://localhost:${PORT}${NC}"
+echo -e "  📚 API Docs: ${GREEN}http://localhost:${PORT}/api/docs${NC}"
+echo -e "  ❤️  Health: ${GREEN}http://localhost:${PORT}/api/health${NC}"
 echo ""
+echo -e "${YELLOW}💡 Tip: Frontend should use http://localhost:${PORT}${NC}"
 echo -e "${YELLOW}Press Ctrl+C to stop the server${NC}"
 echo ""
 

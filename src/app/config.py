@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     supabase_service_role_key: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     
     # CORS Configuration
-    frontend_origin: str = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+    frontend_origin: str = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
     
     @property
     def cors_origins(self) -> List[str]:
@@ -25,13 +25,17 @@ class Settings(BaseSettings):
             return [
                 self.frontend_origin,
                 "https://your-production-domain.com",  # Replace with your actual domain
-                "https://magdee.app"  # Replace with your actual domain
+                "https://magdee.app",  # Replace with your actual domain
+                "https://*.vercel.app",  # Allow Vercel preview deployments
+                "https://*.netlify.app"  # Allow Netlify preview deployments
             ]
         else:
             return [
-                "http://localhost:3000",
+                "http://localhost:5173",  # Vite default
+                "http://localhost:3000",  # Alternative
                 "http://localhost:3001", 
                 "http://localhost:8080",
+                "http://127.0.0.1:5173",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:3001",
                 "http://127.0.0.1:8080"

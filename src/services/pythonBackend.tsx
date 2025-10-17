@@ -6,7 +6,8 @@
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 
 // Python backend configuration
-const PYTHON_BACKEND_URL = import.meta.env.VITE_PYTHON_BACKEND_URL || 'http://localhost:8000';
+// Auto-detects Railway deployment or uses local development URL
+const PYTHON_BACKEND_URL = import.meta.env.VITE_PYTHON_BACKEND_URL || 'http://localhost:8001';
 
 export interface PythonBackendConfig {
   baseURL: string;

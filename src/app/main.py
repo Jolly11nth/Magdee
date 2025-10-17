@@ -129,12 +129,19 @@ async def global_exception_handler(request: Request, exc: Exception):
 if __name__ == "__main__":
     import uvicorn
     
-    port = int(os.getenv("PORT", "8000"))
+    # Railway sets PORT automatically in production
+    # Default to 8001 for local development (avoids conflict with common 8000)
+    port = int(os.getenv("PORT", "8001"))
+    
+    logger.info(f"🚀 Starting server on port {port}")
+    logger.info(f"📍 Environment: {settings.environment}")
+    logger.info(f"🌐 Access at: http://0.0.0.0:{port}")
     
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
         port=port,
-        reload=settings.debug,
-        log_level=settings.log_level.lower()
+        reload=settings.debug and settings.environment == "development",
+        log_level=settings.log_level.lower(),
+        access_log=settings.debug
     )

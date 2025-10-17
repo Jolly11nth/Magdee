@@ -37,21 +37,27 @@ if [ ! -f ".env" ]; then
     fi
 fi
 
-# Kill any existing Python processes on port 8000
-echo "🧹 Cleaning up existing processes..."
-lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+# Get port from .env or use default
+if [ -f ".env" ]; then
+    PORT=$(grep -E "^PORT=" .env 2>/dev/null | cut -d '=' -f2 | tr -d ' ')
+fi
+PORT=${PORT:-8001}
+
+# Kill any existing Python processes on the port
+echo "🧹 Cleaning up existing processes on port ${PORT}..."
+lsof -ti:${PORT} | xargs kill -9 2>/dev/null || true
 
 # Start Python backend
-echo "🐍 Starting Python FastAPI backend..."
-python main.py &
+echo "🐍 Starting Python FastAPI backend on port ${PORT}..."
+python -m app.main &
 PYTHON_PID=$!
 
 # Wait a moment for the server to start
 sleep 3
 
 # Check if Python backend is running
-if curl -s http://localhost:8000/health > /dev/null; then
-    echo "✅ Python backend is running on http://localhost:8000"
+if curl -s http://localhost:${PORT}/api/health > /dev/null; then
+    echo "✅ Python backend is running on http://localhost:${PORT}"
 else
     echo "❌ Python backend failed to start"
     kill $PYTHON_PID 2>/dev/null || true
@@ -74,9 +80,9 @@ echo "================================"
 echo "🎉 Magdee servers are ready!"
 echo ""
 echo "📊 Server Status:"
-echo "   • Python Backend: http://localhost:8000"
-echo "   • Health Check: http://localhost:8000/health"
-echo "   • API Docs: http://localhost:8000/docs"
+echo "   • Python Backend: http://localhost:${PORT}"
+echo "   • Health Check: http://localhost:${PORT}/api/health"
+echo "   • API Docs: http://localhost:${PORT}/api/docs"
 echo ""
 echo "🔧 Useful Commands:"
 echo "   • Check status: python check-servers.py"
@@ -84,9 +90,13 @@ echo "   • Stop Python backend: kill $PYTHON_PID"
 echo "   • View logs: tail -f logs/* (if logs directory exists)"
 echo ""
 echo "🌐 Next Steps:"
-echo "   1. Start your React development server: npm start"
-echo "   2. Open your app in the browser"
-echo "   3. Check the status indicators in your app"
+echo "   1. Start your frontend server: npm run dev"
+echo "   2. Frontend will run on: http://localhost:5173"
+echo "   3. Check the connection status in your app"
+echo ""
+echo "💡 Environment:"
+echo "   • Backend Port: ${PORT}"
+echo "   • Frontend Port: 5173 (Vite default)"
 echo ""
 echo "Press Ctrl+C to stop the Python backend"
 
