@@ -56,6 +56,6 @@
       },
       "scripts": {
           "dev": "vite",
-          "build": "if [ -f vite.config.ts ]; then echo 'Skipping vite build for backend-only deploy'; else echo 'No build'; fi"
+          "build": "if [ -f vite.config.ts ]; then echo 'Skipping vite build for backend-only deploy'; else echo 'No build'"
       }
   }
