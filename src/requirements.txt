@@ -43,7 +43,7 @@ pdfplumber==0.10.4  # Updated from 0.10.3 (compatibility)
 # Removed deprecated PyPDF2==3.0.1
 
 # PDF processing dependencies
-pdfminer.six==20231228  # Required by pdfplumber
+pdfminer.six==20221105  # Required by pdfplumber
 charset-normalizer==3.3.2  # Required by pdfminer
 
 # ==========================================
