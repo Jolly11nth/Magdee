@@ -1,5 +1,5 @@
 import React from 'react';
-import magdeeLogo from 'figma:asset/f82a941c409d8064bd2a0c4bcb7ad4befc1175e2.png';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 import { BackButton } from './BackButton';
 
 export function TermsOfServiceScreen({ onNavigate }) {
@@ -34,8 +34,8 @@ export function TermsOfServiceScreen({ onNavigate }) {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-            <img 
-              src={magdeeLogo} 
+            <ImageWithFallback 
+              src="/assets/images/magdee-logo.png" 
               alt="Magdee" 
               style={{
                 width: '32px',

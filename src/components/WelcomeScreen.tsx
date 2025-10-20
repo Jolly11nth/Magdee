@@ -1,5 +1,5 @@
 import React from "react";
-import magdeeLogo from "figma:asset/f82a941c409d8064bd2a0c4bcb7ad4befc1175e2.png";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export function WelcomeScreen({ onNavigate }) {
   return (
@@ -41,8 +41,8 @@ export function WelcomeScreen({ onNavigate }) {
           justifyContent: "center",
         }}
       >
-        <img
-          src={magdeeLogo}
+        <ImageWithFallback
+          src="/assets/images/magdee-logo.png"
           alt="Magdee Logo"
           style={{
             width: "299px",

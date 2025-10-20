@@ -9,7 +9,6 @@ import {
   BookOpen,
 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import magdeeLogo from "figma:asset/a4e7b1eba86d0b36e2f5b88f6b59e9b62b4ebb0e.png";
 
 interface Book {
   id: string;
@@ -75,15 +74,6 @@ export function BookCoverScreen({ book, onNavigate, onPlay }: BookCoverScreenPro
         >
           <ArrowLeft size={20} color="white" />
         </button>
-
-        <img
-          src={magdeeLogo}
-          alt="Magdee"
-          style={{
-            height: "32px",
-            width: "auto",
-          }}
-        />
 
         <button
           style={{

@@ -1,29 +1,8 @@
-import React, { useEffect } from "react";
-import {
-  Upload,
-  List,
-  Play,
-  MoreHorizontal,
-  Home,
-  Headphones,
-  User,
-  BookOpen,
-  Clock,
-  TrendingUp,
-  RefreshCw,
-  AlertCircle,
-  Wifi,
-  WifiOff,
-} from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { NotificationBell } from "./NotificationBell";
-import { useNotificationHelpers } from "./NotificationHelpers";
 import { usePlaylist } from "../services/playlistService";
 import { useAuth } from "./AuthContext";
 import { useUserDisplayInfo } from "../hooks/useUserProfile";
 import { useRecentlyConvertedBooks } from "../hooks/useRecentBooks";
 import { SeedDataButton } from "./SeedDataButton";
-import emptyStateImage from "figma:asset/7604a65f79f91ff4a16258b69c691402e454d9ce.png";
 
 export function HomeScreen({
   onNavigate,
