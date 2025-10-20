@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "echo 'Skipping frontend build for backend-only deployment'",
+    "build": "echo \"Skipping frontend build for backend-only deployment\"",
+    "start": "python3 -m app.main",
     "preview": "vite preview",
     "python:start": "./start-python-backend.sh",
     "python:dev": "source venv/bin/activate && python -m app.main",
