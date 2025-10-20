@@ -1,17 +1,13 @@
 {
-  "name": "magdee",
+  "name": "magdee-frontend",
   "version": "1.0.0",
-  "description": "Magdee - PDF to Audio conversion app with Python FastAPI backend",
+  "private": true,
+  "description": "Magdee - Frontend (Vite + React) for PDF to Audio conversion app",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "echo \"Skipping frontend build for backend-only deployment\"",
-    "start": "python3 -m app.main",
+    "build": "vite build",
     "preview": "vite preview",
-    "python:start": "./start-python-backend.sh",
-    "python:dev": "source venv/bin/activate && python -m app.main",
-    "dev:all": "concurrently \"npm run dev\" \"npm run python:start\"",
-    "setup:python": "python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
     "lint": "eslint . --ext ts,tsx",
     "type-check": "tsc --noEmit"
   },
@@ -21,8 +17,8 @@
     "tts",
     "conversion",
     "react",
-    "fastapi",
-    "python"
+    "vite",
+    "frontend"
   ],
   "dependencies": {
     "react": "^18.2.0",
@@ -34,6 +30,6 @@
     "@vitejs/plugin-react": "^4.0.0",
     "vite": "^4.3.9",
     "typescript": "^5.0.0",
-    "concurrently": "^8.2.0"
+    "eslint": "^8.57.0"
   }
 }
