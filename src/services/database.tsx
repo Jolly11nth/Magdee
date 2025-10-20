@@ -241,13 +241,6 @@ export class DatabaseService {
     }, 2000);
   }
 
-  static async updateBookProgress(bookId: string, progress: number, currentTime?: number, duration?: number): Promise<DatabaseResult<any>> {
-    return this.apiCall<any>(`/book/${bookId}/progress`, {
-      method: 'PUT',
-      body: JSON.stringify({ progress, currentTime, duration }),
-    }, 3000);
-  }
-
   // Development/Testing methods
   static async seedSampleData(userId: string, force: boolean = false): Promise<DatabaseResult<any>> {
     return this.apiCall<any>(`/seed-data`, {
@@ -369,11 +362,6 @@ export class DatabaseService {
     // This should be done through the API if needed
     // For now, audio settings are handled directly by the server
     return { success: false, error: 'Audio settings initialization should be done through user setup' };
-  }
-
-  static async updateAudioSettings(userId: string, settingsData: Partial<AudioSettings>): Promise<DatabaseResult<AudioSettings>> {
-    // Audio settings should be updated through the API if needed
-    return { success: false, error: 'Audio settings updates should be done through API endpoints' };
   }
 
   // Analytics operations (using API endpoints)
