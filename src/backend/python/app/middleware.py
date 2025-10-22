@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-logger = logging.getLogger(_name_)
+logger = logging.getLogger(__name__)
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     """Log all requests and responses"""
