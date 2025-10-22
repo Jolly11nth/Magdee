@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(_name_)
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     """Log all requests and responses"""
@@ -19,7 +19,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
         
         # Log request
-        logger.info(f"➡️  {request.method} {request.url.path}")
+        logger.info(f"➡  {request.method} {request.url.path}")
         
         # Process request
         response = await call_next(request)
@@ -32,7 +32,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         
         # Log response
         logger.info(
-            f"⬅️  {request.method} {request.url.path} - "
+            f"⬅  {request.method} {request.url.path} - "
             f"Status: {response.status_code} - "
             f"Time: {process_time:.3f}s"
         )
@@ -43,8 +43,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Simple rate limiting middleware"""
     
-    def __init__(self, app, max_requests_per_minute: int = 60):
-        super().__init__(app)
+    def _init_(self, app, max_requests_per_minute: int = 60):
+        super()._init_(app)
         self.max_requests_per_minute = max_requests_per_minute
         self.requests = defaultdict(list)
     
@@ -135,5 +135,19 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         
         # Process request
         response = await call_next(request)
-        
         return response
+
+
+# ==========================================================
+# ✅ Added Function: get_client_ip()
+# ==========================================================
+async def get_client_ip(request: Request) -> str:
+    """Extracts the real client IP address, considering reverse proxies."""
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0].strip()
+    elif request.client:
+        ip = request.client.host
+    else:
+        ip = "unknown"
+    return ip
