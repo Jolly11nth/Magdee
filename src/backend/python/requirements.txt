@@ -1,14 +1,14 @@
-# Magdee Python Backend - Requirements (Stable & Compatible)
+# Magdee Python Backend - Stable & Fully Compatible for Railway
 
 # ==========================================
 # FastAPI and Core Dependencies
 # ==========================================
-fastapi==0.109.0
+fastapi==0.108.0          # Compatible with Pydantic v1
 uvicorn[standard]==0.27.0
 python-multipart==0.0.6
 aiofiles==23.2.1
-pydantic==2.5.3
-pydantic-settings==2.1.0
+pydantic==1.10.13         # Downgraded for supabase/postgrest compatibility
+pydantic-settings==1.0.1  # Compatible with pydantic v1
 
 # ==========================================
 # Supabase and Database
@@ -41,7 +41,7 @@ charset-normalizer==3.3.2
 # ==========================================
 pydub==0.25.1
 gTTS==2.5.0
-# Comment out ElevenLabs if you use only gTTS (open source):
+# Optional commercial voice support
 # elevenlabs==0.2.27
 
 # ==========================================
@@ -80,7 +80,7 @@ types-requests==2.31.0.20240125
 # ==========================================
 # Notes
 # ==========================================
-# - Removed 'safety' due to incompatibility with Pydantic v2
-# - Removed PyPDF2 (deprecated)
-# - Compatible with Python 3.9–3.12
-# - ffmpeg must be installed for audio (pydub)
+# ✅ Pydantic v1 compatibility restored (required by postgrest, gotrue, etc.)
+# ✅ Works on Python 3.9 – 3.12
+# ✅ Safe for Railway and local deployment
+# ⚠ If you upgrade FastAPI to 0.109+ in the future, upgrade Supabase SDK too.
