@@ -10,7 +10,7 @@ export default defineConfig({
 
   // 👇 Build output directory (Vercel serves from this)
   build: {
-    outDir: '../../dist', // adjust if your package.json is at the project root
+    outDir: '../dist', // adjust if your package.json is at the project root
     emptyOutDir: true,
   },
 
