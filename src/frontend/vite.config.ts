@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
 
   // 👇 Tell Vite where your frontend source code is
-  root: 'src/frontend',
+  root: 'src',
 
   // 👇 Build output directory (Vercel serves from this)
   build: {
