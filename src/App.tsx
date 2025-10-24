@@ -1,18 +1,18 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { AuthProvider, useAuth } from './components/AuthContext';
-import { NotificationProvider } from './components/NotificationContext';
-import { ToastContainer } from './components/ToastNotification';
-import { ConnectionStatus } from './components/ConnectionStatus';
+import { AuthProvider, useAuth } from './frontend/components/AuthContext';
+import { NotificationProvider } from './frontend/components/NotificationContext';
+import { ToastContainer } from './frontend/components/ToastNotification';
+import { ConnectionStatus } from './frontend/components/ConnectionStatus';
 
 
-import { EnvironmentValidator } from './components/EnvironmentValidator';
-import { AuthLoadingScreen, AppInitLoadingScreen } from './components/LoadingScreen';
-import { PerformanceOptimizer, PerformanceErrorBoundary } from './components/PerformanceOptimizer';
-import { ScreenRouter } from './components/ScreenRouter';
-import { useAudioPlayer } from './hooks/useAudioPlayer';
-import { createNavigationHandler, createBookHandlers } from './utils/navigation';
-import { BOOKS_DATA } from './constants/booksData';
-import { errorAnalytics } from './services/errorAnalytics';
+import { EnvironmentValidator } from './frontend/components/EnvironmentValidator';
+import { AuthLoadingScreen, AppInitLoadingScreen } from './frontend/components/LoadingScreen';
+import { PerformanceOptimizer, PerformanceErrorBoundary } from './frontend/components/PerformanceOptimizer';
+import { ScreenRouter } from './frontend/components/ScreenRouter';
+import { useAudioPlayer } from './frontend/hooks/useAudioPlayer';
+import { createNavigationHandler, createBookHandlers } from './frontend/utils/navigation';
+import { BOOKS_DATA } from './frontend/constants/booksData';
+import { errorAnalytics } from './frontend/services/errorAnalytics';
 
 
 
